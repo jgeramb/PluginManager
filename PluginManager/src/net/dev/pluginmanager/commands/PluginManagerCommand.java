@@ -464,10 +464,10 @@ public class PluginManagerCommand implements CommandExecutor {
 			sender.sendMessage(Utils.prefix + "§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ §a" + description.getName() + " §8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
 		} else {
 			if(sender.hasPermission("pluginmanager.use")) {
-				sender.sendMessage(Utils.prefix + "§7/pm («enable|disable|restart|load|unload|reload» «plugin|all»)");
-				sender.sendMessage(Utils.prefix + "§7/pm («cmdlookup» «command»)");
-				sender.sendMessage(Utils.prefix + "§7/pm («info|commands» «plugin»)");
-				sender.sendMessage(Utils.prefix + "§7/pm («list»)");
+				sender.sendMessage(Utils.prefix + "§7/pman («enable|disable|restart|load|unload|reload» «plugin|all»)");
+				sender.sendMessage(Utils.prefix + "§7/pman («cmdlookup» «command»)");
+				sender.sendMessage(Utils.prefix + "§7/pman («info|commands» «plugin»)");
+				sender.sendMessage(Utils.prefix + "§7/pman («list»)");
 			} else
 				sender.sendMessage(Utils.noPerm);
 		}
