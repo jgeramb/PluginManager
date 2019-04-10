@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.net.URLClassLoader;
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,11 +38,20 @@ public class Utils {
 		Bukkit.getConsoleSender().sendMessage(prefix + msg);
 	}
 
-	public static ItemStack createItem(Material mat, int amount, int metaData, String displayName, String... lore) {
+	public static ItemStack createItem(Material mat, int amount, int metaData, String displayName) {
 		ItemStack item = new ItemStack(mat, amount, (byte) metaData);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(displayName);
-		meta.setLore(Arrays.asList(lore));
+		item.setItemMeta(meta);
+		
+		return item;
+	}
+	
+	public static ItemStack createItem(Material mat, int amount, int metaData, String displayName, List<String> list) {
+		ItemStack item = new ItemStack(mat, amount, (byte) metaData);
+		ItemMeta meta = item.getItemMeta();
+		meta.setDisplayName(displayName);
+		meta.setLore(list);
 		item.setItemMeta(meta);
 		
 		return item;
@@ -53,7 +61,7 @@ public class Utils {
 		if(!(currentPages.containsKey(p.getUniqueId())))
 			currentPages.put(p.getUniqueId(), 0);
 		
-		Inventory inv = Bukkit.createInventory(null, 54, "§aPlugins");
+		Inventory inv = Bukkit.createInventory(null, 54, FileUtils.getConfigString("Settings.PluginsInventory.Title"));
 		ArrayList<Plugin> plugins = new ArrayList<>();
 		ArrayList<String> pluginNames = new ArrayList<>();
 		
@@ -78,7 +86,7 @@ public class Utils {
 						
 						@Override
 						public void run() {
-							inv.setItem(slot, createItem(Utils.getVersion().contains("1_13") ? Material.getMaterial("LEGACY_WOOL") : Material.getMaterial("WOOL"), 1, plugin.isEnabled() ? 5 : 14, "§e" + plugin.getDescription().getName(), "§7Version§8: §d" + plugin.getDescription().getVersion()));
+							inv.setItem(slot, createItem(Material.getMaterial(FileUtils.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? FileUtils.cfg.getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : FileUtils.cfg.getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), FileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(FileUtils.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion())));
 						}
 					}, i);
 				}
@@ -100,23 +108,23 @@ public class Utils {
 						
 						@Override
 						public void run() {
-							inv.setItem(slot, createItem(Utils.getVersion().contains("1_13") ? Material.getMaterial("LEGACY_WOOL") : Material.getMaterial("WOOL"), 1, plugin.isEnabled() ? 5 : 14, "§e" + plugin.getDescription().getName(), "§7Version§8: §d" + plugin.getDescription().getVersion()));
+							inv.setItem(slot, createItem(Material.getMaterial(FileUtils.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? FileUtils.cfg.getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : FileUtils.cfg.getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), FileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(FileUtils.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion())));
 						}
 					}, i);
 				}
 			}
 		}
 		
-		inv.setItem(45, createItem(Material.ANVIL, 1, 0, "§d§lInfo", "§7Leftclick a plugin to open it's settings", "§7Rightclick a plugin to toggle it's status"));
+		inv.setItem(45, createItem(Material.getMaterial(FileUtils.getConfigString("Settings.PluginsInventory.Info.Type")), 1, 0, FileUtils.getConfigString("Settings.PluginsInventory.Info.DisplayName"), FileUtils.getStringList("Settings.PluginsInventory.Info.Lore")));
 		
-		if(plugins.size() > (45 + 1)) {
-			inv.setItem(52, createItem(Material.PAPER, 1, 0, "§7Back", "§7Click here to go to the previous page"));
-			inv.setItem(53, createItem(Material.PAPER, 1, 0, "§7Next", "§7Click here to go to the next page"));
+		if(plugins.size() > 45) {
+			inv.setItem(52, createItem(Material.getMaterial(FileUtils.getConfigString("Settings.PluginsInventory.Back.Type")), 1, 0, FileUtils.getConfigString("Settings.PluginsInventory.Back.DisplayName"), FileUtils.getStringList("Settings.PluginsInventory.Back.Lore")));
+			inv.setItem(53, createItem(Material.getMaterial(FileUtils.getConfigString("Settings.PluginsInventory.Next.Type")), 1, 0, FileUtils.getConfigString("Settings.PluginsInventory.Next.DisplayName"), FileUtils.getStringList("Settings.PluginsInventory.Next.Lore")));
 		}
 		
 		p.openInventory(inv);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public static void unloadPlugin(Plugin plugin) {
 		PluginManager pm = Bukkit.getPluginManager();
@@ -231,6 +239,15 @@ public class Utils {
 	
 	public static String getVersion() {
 		return Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+	}
+	
+	public static List<String> replaceInList(List<String> stringList, String target, String replacement) {
+		List<String> list = new ArrayList<>();
+		
+		for (String string : stringList)
+			list.add(string.replace(target, replacement));
+		
+		return list;
 	}
 
 }
