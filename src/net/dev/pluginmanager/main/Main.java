@@ -91,9 +91,7 @@ public class Main extends JavaPlugin {
 							}
 						}
 						
-						List<String> completeions = StringUtil.copyPartialMatches(args[args.length == 1 ? 0 : 1], tabCompletions, new ArrayList<String>());
-						tabCompletions.removeIf(tabCompletion -> !completeions.contains(tabCompletion));
-						
+						tabCompletions.removeIf(tabCompletion -> !(StringUtil.copyPartialMatches(args[args.length - 1], tabCompletions, new ArrayList<String>()).contains(tabCompletion)));
 						Collections.sort(tabCompletions);
 					}
 				}

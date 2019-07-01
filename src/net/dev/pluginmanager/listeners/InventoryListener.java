@@ -23,7 +23,7 @@ public class InventoryListener implements Listener {
 			Player p = (Player) e.getWhoClicked();
 			
 			if((e.getCurrentItem() != null) && (e.getCurrentItem().getType() != Material.AIR) && (e.getCurrentItem().getItemMeta() != null) && e.getCurrentItem().getItemMeta().hasDisplayName()) {
-				if(e.getInventory().getName().equalsIgnoreCase(FileUtils.getConfigString("Settings.PluginsInventory.Title"))) {
+				if(e.getView().getTitle().equalsIgnoreCase(FileUtils.getConfigString("Settings.PluginsInventory.Title"))) {
 					if(p.hasPermission("pluginmanager.gui")) {
 						e.setCancelled(true);
 						
@@ -89,7 +89,7 @@ public class InventoryListener implements Listener {
 					}
 				} else {
 					for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-						if(e.getInventory().getName().equalsIgnoreCase(FileUtils.getConfigString("Settings.SettingsInventory.Title").replace("%plugin%", plugin.getDescription().getName()))) {
+						if(e.getView().getTitle().equalsIgnoreCase(FileUtils.getConfigString("Settings.SettingsInventory.Title").replace("%plugin%", plugin.getDescription().getName()))) {
 							if(p.hasPermission("pluginmanager.gui")) {
 								e.setCancelled(true);
 								
@@ -124,7 +124,7 @@ public class InventoryListener implements Listener {
 			Player p = (Player) e.getPlayer();
 			
 			for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-				if(e.getInventory().getName().equalsIgnoreCase(FileUtils.getConfigString("Settings.PluginsInventory.Title").replace("%plugin%", plugin.getDescription().getName())) || e.getInventory().getName().equalsIgnoreCase(FileUtils.getConfigString("Settings.SettingsInventory.Title").replace("%plugin%", plugin.getDescription().getName()))) {
+				if(e.getView().getTitle().equalsIgnoreCase(FileUtils.getConfigString("Settings.PluginsInventory.Title").replace("%plugin%", plugin.getDescription().getName())) || e.getView().getTitle().equalsIgnoreCase(FileUtils.getConfigString("Settings.SettingsInventory.Title").replace("%plugin%", plugin.getDescription().getName()))) {
 					Bukkit.getScheduler().runTaskLater(Main.getInstance(), new Runnable() {
 						
 						@Override

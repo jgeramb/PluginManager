@@ -37,43 +37,43 @@ public class FileUtils {
 			}
 		}
 		
-		boolean is1_13 = Utils.getVersion().contains("1_13");
+		boolean isNonLegacy = Utils.getVersion().contains("1_13") || Utils.getVersion().contains("1_14");
 		
 		cfg.addDefault("Settings.PluginsInventory.Title", "&aPlugins");
 		cfg.addDefault("Settings.PluginsInventory.Plugin.DisplayName", "&e%plugin%");
 		cfg.addDefault("Settings.PluginsInventory.Plugin.Lore", getListFromStrings("&7Version&8: &d%plugin%"));
-		cfg.addDefault("Settings.PluginsInventory.Plugin.Type.Enabled", is1_13 ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
-		cfg.addDefault("Settings.PluginsInventory.Plugin.Type.Disabled", is1_13 ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
+		cfg.addDefault("Settings.PluginsInventory.Plugin.Type.Enabled", isNonLegacy ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
+		cfg.addDefault("Settings.PluginsInventory.Plugin.Type.Disabled", isNonLegacy ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
 		cfg.addDefault("Settings.PluginsInventory.Plugin.MetaData.Enabled", 5);
 		cfg.addDefault("Settings.PluginsInventory.Plugin.MetaData.Disabled", 14);
 		cfg.addDefault("Settings.PluginsInventory.Info.DisplayName", "&6&lInfo");
 		cfg.addDefault("Settings.PluginsInventory.Info.Lore", getListFromStrings("&7Leftclick a plugin to open it's settings", "&7Rightclick a plugin to toggle it's status"));
-		cfg.addDefault("Settings.PluginsInventory.Info.Type", is1_13 ? "LEGACY_NETHER_STAR" : "NETHER_STAR");
+		cfg.addDefault("Settings.PluginsInventory.Info.Type", isNonLegacy ? "LEGACY_NETHER_STAR" : "NETHER_STAR");
 		cfg.addDefault("Settings.PluginsInventory.Next.DisplayName", "&8Next");
 		cfg.addDefault("Settings.PluginsInventory.Next.Lore", getListFromStrings("&7Click here to go to the next page"));
-		cfg.addDefault("Settings.PluginsInventory.Next.Type", is1_13 ? "LEGACY_ARROW" : "ARROW");
+		cfg.addDefault("Settings.PluginsInventory.Next.Type", isNonLegacy ? "LEGACY_ARROW" : "ARROW");
 		cfg.addDefault("Settings.PluginsInventory.Back.DisplayName", "&8Back");
 		cfg.addDefault("Settings.PluginsInventory.Back.Lore", getListFromStrings("&7Click here to go to the previous page"));
-		cfg.addDefault("Settings.PluginsInventory.Back.Type", is1_13 ? "LEGACY_ARROW" : "ARROW");
+		cfg.addDefault("Settings.PluginsInventory.Back.Type", isNonLegacy ? "LEGACY_ARROW" : "ARROW");
 		
 		cfg.addDefault("Settings.SettingsInventory.Title", "&aPlugin-Settings&8: &e%plugin%");
 		cfg.addDefault("Settings.SettingsInventory.UsePlaceHolders", true);
 		cfg.addDefault("Settings.SettingsInventory.PlaceHolder.DisplayName", "&8&k,&r");
-		cfg.addDefault("Settings.SettingsInventory.PlaceHolder.Type", is1_13 ? "LEGACY_STAINED_GLASS_PANE" : "STAINED_GLASS_PANE");
+		cfg.addDefault("Settings.SettingsInventory.PlaceHolder.Type", isNonLegacy ? "LEGACY_STAINED_GLASS_PANE" : "STAINED_GLASS_PANE");
 		cfg.addDefault("Settings.SettingsInventory.Enable.DisplayName", "&aEnable");
 		cfg.addDefault("Settings.SettingsInventory.Enable.Lore", getListFromStrings("&7Click here to enable the plugin"));
-		cfg.addDefault("Settings.SettingsInventory.Enable.Type", is1_13 ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
+		cfg.addDefault("Settings.SettingsInventory.Enable.Type", isNonLegacy ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
 		cfg.addDefault("Settings.SettingsInventory.Enable.MetaData", 5);
 		cfg.addDefault("Settings.SettingsInventory.Disable.DisplayName", "&cDisable");
 		cfg.addDefault("Settings.SettingsInventory.Disable.Lore", getListFromStrings("&7Click here to disable the plugin"));
-		cfg.addDefault("Settings.SettingsInventory.Disable.Type", is1_13 ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
+		cfg.addDefault("Settings.SettingsInventory.Disable.Type", isNonLegacy ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
 		cfg.addDefault("Settings.SettingsInventory.Disable.MetaData", 14);
 		cfg.addDefault("Settings.SettingsInventory.Info.DisplayName", "&6&l%plugin%");
 		cfg.addDefault("Settings.SettingsInventory.Info.Lore", getListFromStrings("&7Version&8: &d%version%"));
-		cfg.addDefault("Settings.SettingsInventory.Info.Type", is1_13 ? "LEGACY_NETHER_STAR" : "NETHER_STAR");
+		cfg.addDefault("Settings.SettingsInventory.Info.Type", isNonLegacy ? "LEGACY_NETHER_STAR" : "NETHER_STAR");
 		cfg.addDefault("Settings.SettingsInventory.Back.DisplayName", "&8Back");
 		cfg.addDefault("Settings.SettingsInventory.Back.Lore", getListFromStrings("&7Click here to go back"));
-		cfg.addDefault("Settings.SettingsInventory.Back.Type", is1_13 ? "LEGACY_ARROW" : "ARROW");
+		cfg.addDefault("Settings.SettingsInventory.Back.Type", isNonLegacy ? "LEGACY_ARROW" : "ARROW");
 		
 		cfg.addDefault("Messages.Prefix", "&a&lPluginManager &8» &7");
 		cfg.addDefault("Messages.NoPerm", "Unknown command. Type \"/help\" for help.");
