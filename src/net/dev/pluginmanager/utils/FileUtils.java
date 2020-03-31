@@ -9,26 +9,25 @@ import java.util.List;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import net.dev.pluginmanager.PluginManager;
+
 public class FileUtils {
 
-	public static File folder = new File("plugins/PluginManager/");
-	public static File file = new File("plugins/PluginManager/setup.yml");
-	public static YamlConfiguration cfg = YamlConfiguration.loadConfiguration(file);
+	private File directory, file;
+	private YamlConfiguration cfg;
+
+	private PluginManager pluginManager;
+	private Utils utils;
 	
-	public static void saveFile() {
-		try {
-			cfg.save(file);
-		} catch (IOException e) {
-		}
+	public FileUtils() {
+		pluginManager = PluginManager.getInstance();
+		utils = pluginManager.getUtils();
 		
-		Utils.prefix = getConfigString("Messages.Prefix");
-		Utils.noPerm = getConfigString("Messages.NoPerm");
-		Utils.notPlayer = getConfigString("Messages.NotPlayer");
-	}
-	
-	public static void setupFiles() {
-		if(!(folder.exists()))
-			folder.mkdir();
+		directory = new File("plugins/" + pluginManager.getDescription().getName() + "/");
+		file = new File(directory, "setup.yml");
+		
+		if(!(directory.exists()))
+			directory.mkdir();
 		
 		if(!(file.exists())) {
 			try {
@@ -37,7 +36,10 @@ public class FileUtils {
 			}
 		}
 		
-		boolean isNonLegacy = Utils.getVersion().contains("1_13") || Utils.getVersion().contains("1_14");
+		cfg = YamlConfiguration.loadConfiguration(file);
+		
+		String version = utils.getVersion();
+		boolean isNonLegacy = version.contains("1_13") || version.contains("1_14") || version.contains("1_15");
 		
 		cfg.addDefault("Settings.PluginsInventory.Title", "&aPlugins");
 		cfg.addDefault("Settings.PluginsInventory.Plugin.DisplayName", "&e%plugin%");
@@ -105,33 +107,41 @@ public class FileUtils {
 		cfg.addDefault("Messages.CommandBelongsToPlugin", "&7The command &e%command% &7belongs to the plugin &a%plugin%");
 		cfg.addDefault("Messages.CommandNotFound", "&7The command &e%command% &7does &cnot &7exist");
 		cfg.addDefault("Messages.PluginAlreadyLoaded", "&7The plugin &e%plugin% &7is &calready &7loaded");
-		
-		List<String> lines = new ArrayList<>();
-		lines.add("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &a%name% &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-		lines.add("&7Author(s)&8: &b%authors%");
-		lines.add("&7Version&8: &d%version%");
-		lines.add("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &a%name% &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-		
-		cfg.addDefault("Messages.PluginInfo", lines);
+		cfg.addDefault("Messages.PluginInfo", Arrays.asList("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &a%name% &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", "&7Author(s)&8: &b%authors%", "&7Version&8: &d%version%", "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &a%name% &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
 		cfg.options().copyDefaults(true);
 		saveFile();
 	}
 	
-	public static String getConfigString(String path) {
+	public void saveFile() {
+		try {
+			cfg.save(file);
+		} catch (IOException e) {
+		}
+		
+		utils.setPrefix(getConfigString("Messages.Prefix"));
+		utils.setNoPerm(getConfigString("Messages.NoPerm"));
+		utils.setNotPlayer(getConfigString("Messages.NotPlayer"));
+	}
+	
+	public String getConfigString(String path) {
 		return ChatColor.translateAlternateColorCodes('&', cfg.getString(path));
 	}
 	
-	private static List<String> getListFromStrings(String... strings) {
+	private List<String> getListFromStrings(String... strings) {
 		return Arrays.asList(strings);
 	}
 
-	public static List<String> getStringList(String path) {
+	public List<String> getStringList(String path) {
 		List<String> list = new ArrayList<>();
 		
 		for (String string : cfg.getStringList(path))
 			list.add(ChatColor.translateAlternateColorCodes('&', string));
 		
 		return list;
+	}
+	
+	public YamlConfiguration getConfig() {
+		return cfg;
 	}
 
 }

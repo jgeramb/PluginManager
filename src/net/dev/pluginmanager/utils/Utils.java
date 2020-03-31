@@ -21,24 +21,21 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredListener;
 
-import net.dev.pluginmanager.main.Main;
+import net.dev.pluginmanager.PluginManager;
 
 public class Utils {
 
-	public static String prefix;
-	public static String noPerm;
-	public static String notPlayer;
+	private String prefix, noPerm, notPlayer;
 	
-	public static HashMap<UUID, Integer> currentPages = new HashMap<>();
+	private HashMap<UUID, Integer> currentPages = new HashMap<>();
 	
-	public static void sendConsole(String msg) {
+	public void sendConsole(String msg) {
 		Bukkit.getConsoleSender().sendMessage(prefix + msg);
 	}
 
-	public static ItemStack createItem(Material mat, int amount, int metaData, String displayName) {
+	public ItemStack createItem(Material mat, int amount, int metaData, String displayName) {
 		ItemStack item = new ItemStack(mat, amount, (byte) metaData);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(displayName);
@@ -47,7 +44,7 @@ public class Utils {
 		return item;
 	}
 	
-	public static ItemStack createItem(Material mat, int amount, int metaData, String displayName, List<String> list) {
+	public ItemStack createItem(Material mat, int amount, int metaData, String displayName, List<String> list) {
 		ItemStack item = new ItemStack(mat, amount, (byte) metaData);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(displayName);
@@ -57,16 +54,18 @@ public class Utils {
 		return item;
 	}
 
-	public static void openInventory(Player p) {
+	public void openInventory(Player p) {
+		FileUtils fileUtils = PluginManager.getInstance().getFileUtils();
+		
 		if(!(currentPages.containsKey(p.getUniqueId())))
 			currentPages.put(p.getUniqueId(), 0);
 		
-		Inventory inv = Bukkit.createInventory(null, 54, FileUtils.getConfigString("Settings.PluginsInventory.Title"));
+		Inventory inv = Bukkit.createInventory(null, 54, fileUtils.getConfigString("Settings.PluginsInventory.Title"));
 		ArrayList<Plugin> plugins = new ArrayList<>();
 		ArrayList<String> pluginNames = new ArrayList<>();
 		
 		for (Plugin plugin : Bukkit.getPluginManager().getPlugins())
-			if(!(plugin.getName().equalsIgnoreCase(Main.getInstance().getDescription().getName())))
+			if(!(plugin.getName().equalsIgnoreCase(PluginManager.getInstance().getDescription().getName())))
 				pluginNames.add(plugin.getName());
 		
 		pluginNames.sort(Collator.getInstance());
@@ -82,11 +81,11 @@ public class Utils {
 					i++;
 					int slot = i - 1;
 					
-					Bukkit.getScheduler().runTaskLater(Main.getInstance(), new Runnable() {
+					Bukkit.getScheduler().runTaskLater(PluginManager.getInstance(), new Runnable() {
 						
 						@Override
 						public void run() {
-							inv.setItem(slot, createItem(Material.getMaterial(FileUtils.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? FileUtils.cfg.getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : FileUtils.cfg.getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), FileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(FileUtils.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion())));
+							inv.setItem(slot, createItem(Material.getMaterial(fileUtils.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), fileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(fileUtils.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion())));
 						}
 					}, i);
 				}
@@ -104,30 +103,29 @@ public class Utils {
 					i++;
 					int slot = i - 1;
 					
-					Bukkit.getScheduler().runTaskLater(Main.getInstance(), new Runnable() {
+					Bukkit.getScheduler().runTaskLater(PluginManager.getInstance(), new Runnable() {
 						
 						@Override
 						public void run() {
-							inv.setItem(slot, createItem(Material.getMaterial(FileUtils.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? FileUtils.cfg.getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : FileUtils.cfg.getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), FileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(FileUtils.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion())));
+							inv.setItem(slot, createItem(Material.getMaterial(fileUtils.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), fileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(fileUtils.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion())));
 						}
 					}, i);
 				}
 			}
 		}
 		
-		inv.setItem(45, createItem(Material.getMaterial(FileUtils.getConfigString("Settings.PluginsInventory.Info.Type")), 1, 0, FileUtils.getConfigString("Settings.PluginsInventory.Info.DisplayName"), FileUtils.getStringList("Settings.PluginsInventory.Info.Lore")));
+		inv.setItem(45, createItem(Material.getMaterial(fileUtils.getConfigString("Settings.PluginsInventory.Info.Type")), 1, 0, fileUtils.getConfigString("Settings.PluginsInventory.Info.DisplayName"), fileUtils.getStringList("Settings.PluginsInventory.Info.Lore")));
 		
 		if(plugins.size() > 45) {
-			inv.setItem(52, createItem(Material.getMaterial(FileUtils.getConfigString("Settings.PluginsInventory.Back.Type")), 1, 0, FileUtils.getConfigString("Settings.PluginsInventory.Back.DisplayName"), FileUtils.getStringList("Settings.PluginsInventory.Back.Lore")));
-			inv.setItem(53, createItem(Material.getMaterial(FileUtils.getConfigString("Settings.PluginsInventory.Next.Type")), 1, 0, FileUtils.getConfigString("Settings.PluginsInventory.Next.DisplayName"), FileUtils.getStringList("Settings.PluginsInventory.Next.Lore")));
+			inv.setItem(52, createItem(Material.getMaterial(fileUtils.getConfigString("Settings.PluginsInventory.Back.Type")), 1, 0, fileUtils.getConfigString("Settings.PluginsInventory.Back.DisplayName"), fileUtils.getStringList("Settings.PluginsInventory.Back.Lore")));
+			inv.setItem(53, createItem(Material.getMaterial(fileUtils.getConfigString("Settings.PluginsInventory.Next.Type")), 1, 0, fileUtils.getConfigString("Settings.PluginsInventory.Next.DisplayName"), fileUtils.getStringList("Settings.PluginsInventory.Next.Lore")));
 		}
 		
 		p.openInventory(inv);
 	}
 	
-	@SuppressWarnings("unchecked")
-	public static void unloadPlugin(Plugin plugin) {
-		PluginManager pm = Bukkit.getPluginManager();
+	public void unloadPlugin(Plugin plugin) {
+		org.bukkit.plugin.PluginManager pm = Bukkit.getPluginManager();
 		
 		if(pm != null) {
 			try {
@@ -225,9 +223,9 @@ public class Utils {
 		}
 	}
 
-	public static SimpleCommandMap getCommands() {
+	public SimpleCommandMap getCommands() {
 		try {
-			PluginManager pm = Bukkit.getPluginManager();
+			org.bukkit.plugin.PluginManager pm = Bukkit.getPluginManager();
 			Field commandMapField = pm.getClass().getDeclaredField("commandMap");
 			commandMapField.setAccessible(true);
 			
@@ -237,17 +235,45 @@ public class Utils {
 		}
 	}
 	
-	public static String getVersion() {
+	public String getVersion() {
 		return Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 	}
 	
-	public static List<String> replaceInList(List<String> stringList, String target, String replacement) {
+	public List<String> replaceInList(List<String> stringList, String target, String replacement) {
 		List<String> list = new ArrayList<>();
 		
 		for (String string : stringList)
 			list.add(string.replace(target, replacement));
 		
 		return list;
+	}
+	
+	public String getPrefix() {
+		return prefix;
+	}
+	
+	public String getNoPerm() {
+		return noPerm;
+	}
+	
+	public String getNotPlayer() {
+		return notPlayer;
+	}
+	
+	public void setPrefix(String prefix) {
+		this.prefix = prefix;
+	}
+	
+	public void setNoPerm(String noPerm) {
+		this.noPerm = noPerm;
+	}
+	
+	public void setNotPlayer(String notPlayer) {
+		this.notPlayer = notPlayer;
+	}
+	
+	public HashMap<UUID, Integer> getCurrentPages() {
+		return currentPages;
 	}
 
 }

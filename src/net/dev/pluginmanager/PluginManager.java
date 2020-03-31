@@ -1,4 +1,4 @@
-package net.dev.pluginmanager.main;
+package net.dev.pluginmanager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,23 +13,28 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
 
 import net.dev.pluginmanager.commands.PluginManagerCommand;
-import net.dev.pluginmanager.listeners.InventoryListener;
+import net.dev.pluginmanager.listeners.InventoryClickListener;
+import net.dev.pluginmanager.listeners.InventoryCloseListener;
 import net.dev.pluginmanager.utils.FileUtils;
 import net.dev.pluginmanager.utils.Utils;
 
-public class Main extends JavaPlugin {
+public class PluginManager extends JavaPlugin {
 
-	private static Main instance;
+	private static PluginManager instance;
 	
-	public static Main getInstance() {
+	public static PluginManager getInstance() {
 		return instance;
 	}
+	
+	private Utils utils;
+	private FileUtils fileUtils;
 	
 	@Override
 	public void onEnable() {
 		instance = this;
 		
-		FileUtils.setupFiles();
+		utils = new Utils();
+		fileUtils = new FileUtils();
 		
 		getCommand("pluginmanager").setTabCompleter(new TabCompleter() {
 			
@@ -81,7 +86,7 @@ public class Main extends JavaPlugin {
 										if(sender.hasPermission("pluginmanager." + args[0].toLowerCase()) || sender.hasPermission("pluginmanager." + args[0].toLowerCase() + "." + plugin.getName().toLowerCase()))
 											tabCompletions.add(plugin.getName());
 							} else if(args[0].equalsIgnoreCase("cmdlookup")) {
-								for (Command command : Utils.getCommands().getCommands())
+								for (Command command : utils.getCommands().getCommands())
 									if(sender.hasPermission("pluginmanager.cmdlookup") || sender.hasPermission("pluginmanager.cmdlookup." + command.getName().toLowerCase()))
 										tabCompletions.add(command.getName());
 							} else if(args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("commands")) {
@@ -102,14 +107,24 @@ public class Main extends JavaPlugin {
 		
 		getCommand("pluginmanager").setExecutor(new PluginManagerCommand());
 		
-		Bukkit.getPluginManager().registerEvents(new InventoryListener(), this);
+		org.bukkit.plugin.PluginManager pm = Bukkit.getPluginManager();
+		pm.registerEvents(new InventoryClickListener(), this);
+		pm.registerEvents(new InventoryCloseListener(), this);
 		
-		Utils.sendConsole("§7The plugin has been§8: §aENABLED");
+		utils.sendConsole("§7The plugin has been§8: §aENABLED");
 	}
 
 	@Override
 	public void onDisable() {
-		Utils.sendConsole("§7The plugin has been§8: §cDISABLED");
+		utils.sendConsole("§7The plugin has been§8: §cDISABLED");
+	}
+	
+	public Utils getUtils() {
+		return utils;
+	}
+	
+	public FileUtils getFileUtils() {
+		return fileUtils;
 	}
 	
 }
