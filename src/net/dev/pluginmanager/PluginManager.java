@@ -111,12 +111,12 @@ public class PluginManager extends JavaPlugin {
 		pm.registerEvents(new InventoryClickListener(), this);
 		pm.registerEvents(new InventoryCloseListener(), this);
 		
-		utils.sendConsole("§7The plugin has been§8: §aENABLED");
+		utils.sendConsole("§7The plugin has been §aenabled§7!");
 	}
 
 	@Override
 	public void onDisable() {
-		utils.sendConsole("§7The plugin has been§8: §cDISABLED");
+		utils.sendConsole("§7The plugin has been §cdisabled§7!");
 	}
 	
 	public Utils getUtils() {

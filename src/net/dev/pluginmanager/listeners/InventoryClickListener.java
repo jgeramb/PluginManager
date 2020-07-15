@@ -31,21 +31,11 @@ public class InventoryClickListener implements Listener {
 						e.setCancelled(true);
 						
 						if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(fileUtils.getConfigString("Settings.PluginsInventory.Next.DisplayName"))) {
-							if(Bukkit.getPluginManager().getPlugins().length >= ((45 * (utils.getCurrentPages().get(p.getUniqueId()) + 1) + 1))) {
-								utils.getCurrentPages().put(p.getUniqueId(), utils.getCurrentPages().get(p.getUniqueId()) + 1);
-								
-								utils.openInventory(p);
-							} else {
-								p.sendMessage(utils.getPrefix() + fileUtils.getConfigString("Messages.NoMorePages"));
-							}
+							utils.getCurrentPages().put(p.getUniqueId(), utils.getCurrentPages().get(p.getUniqueId()) + 1);
+							utils.openInventory(p);
 						} else if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(fileUtils.getConfigString("Settings.PluginsInventory.Back.DisplayName"))) {
-							if(utils.getCurrentPages().get(p.getUniqueId()) != 0) {
-								utils.getCurrentPages().put(p.getUniqueId(), utils.getCurrentPages().get(p.getUniqueId()) - 1);
-								
-								utils.openInventory(p);
-							} else {
-								p.sendMessage(utils.getPrefix() + fileUtils.getConfigString("Messages.AlreadyFirstPage"));
-							}
+							utils.getCurrentPages().put(p.getUniqueId(), utils.getCurrentPages().get(p.getUniqueId()) - 1);
+							utils.openInventory(p);
 						} else {
 							for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
 								if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(fileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()))) {
@@ -72,9 +62,10 @@ public class InventoryClickListener implements Listener {
 										
 										Inventory inv = Bukkit.createInventory(null, 27, fileUtils.getConfigString("Settings.SettingsInventory.Title").replace("%plugin%", plugin.getDescription().getName()));
 										
-										if(fileUtils.getConfig().getBoolean("Settings.SettingsInventory.UsePlaceHolders"))
+										if(fileUtils.getConfig().getBoolean("Settings.SettingsInventory.UsePlaceHolders")) {
 											for (int i = 0; i < inv.getSize(); i++)
 												inv.setItem(i, utils.createItem(Material.getMaterial(fileUtils.getConfigString("Settings.SettingsInventory.PlaceHolder.Type")), 1, 0, fileUtils.getConfigString("Settings.SettingsInventory.PlaceHolder.DisplayName")));
+										}
 											
 										inv.setItem(10, utils.createItem(Material.getMaterial(fileUtils.getConfigString("Settings.SettingsInventory.Enable.Type")), 1, fileUtils.getConfig().getInt("Settings.SettingsInventory.Enable.MetaData"), fileUtils.getConfigString("Settings.SettingsInventory.Enable.DisplayName"), fileUtils.getStringList("Settings.SettingsInventory.Enable.Lore")));
 										inv.setItem(13, utils.createItem(Material.getMaterial(fileUtils.getConfigString("Settings.SettingsInventory.Info.Type")), 1, 0, fileUtils.getConfigString("Settings.SettingsInventory.Info.DisplayName").replace("%plugin%", plugin.getDescription().getName()), utils.replaceInList(fileUtils.getStringList("Settings.SettingsInventory.Info.Lore"), "%version%", plugin.getDescription().getVersion())));

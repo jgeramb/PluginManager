@@ -1,12 +1,11 @@
 name: PluginManager
-version: 1.3
+version: 1.4
 author: Justix
 main: net.dev.pluginmanager.PluginManager
 api-version: 1.13
 
 commands:
-      pluginmanager:
-        aliases:
-        - pluginm
-        - pmanager
-        - pman
+  pluginmanager:
+    aliases:
+    - pmanager
+    - pman

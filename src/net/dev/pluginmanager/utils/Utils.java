@@ -55,7 +55,8 @@ public class Utils {
 	}
 
 	public void openInventory(Player p) {
-		FileUtils fileUtils = PluginManager.getInstance().getFileUtils();
+		PluginManager pluginManager = PluginManager.getInstance();
+		FileUtils fileUtils = pluginManager.getFileUtils();
 		
 		if(!(currentPages.containsKey(p.getUniqueId())))
 			currentPages.put(p.getUniqueId(), 0);
@@ -64,62 +65,45 @@ public class Utils {
 		ArrayList<Plugin> plugins = new ArrayList<>();
 		ArrayList<String> pluginNames = new ArrayList<>();
 		
-		for (Plugin plugin : Bukkit.getPluginManager().getPlugins())
-			if(!(plugin.getName().equalsIgnoreCase(PluginManager.getInstance().getDescription().getName())))
+		for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+			if(!(plugin.getName().equalsIgnoreCase(pluginManager.getDescription().getName())))
 				pluginNames.add(plugin.getName());
+		}
 		
 		pluginNames.sort(Collator.getInstance());
 		
 		for (String name : pluginNames)
 			plugins.add(Bukkit.getPluginManager().getPlugin(name));
 			
-		int i = 0;
-		
-		if(currentPages.get(p.getUniqueId()) == 0) {
-			for (Plugin plugin : plugins) {
-				if(i < 45) {
-					i++;
-					int slot = i - 1;
-					
-					Bukkit.getScheduler().runTaskLater(PluginManager.getInstance(), new Runnable() {
-						
-						@Override
-						public void run() {
-							inv.setItem(slot, createItem(Material.getMaterial(fileUtils.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), fileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(fileUtils.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion())));
-						}
-					}, i);
-				}
-			}
-		} else {
-			int count = 0;
+		int currentPage = currentPages.get(p.getUniqueId()), i = 0, count = 0;
 
-			for (Plugin plugin : plugins) {
-				count++;
+		for (Plugin plugin : plugins) {
+			count++;
+			
+			if(count <= (currentPage * 45))
+				continue;
+			
+			if(i < 45) {
+				i++;
+				int slot = i - 1;
 				
-				if(count <= (currentPages.get(p.getUniqueId()) * 45))
-					continue;
-				
-				if(i < 45) {
-					i++;
-					int slot = i - 1;
+				Bukkit.getScheduler().runTaskLater(pluginManager, new Runnable() {
 					
-					Bukkit.getScheduler().runTaskLater(PluginManager.getInstance(), new Runnable() {
-						
-						@Override
-						public void run() {
-							inv.setItem(slot, createItem(Material.getMaterial(fileUtils.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), fileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(fileUtils.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion())));
-						}
-					}, i);
-				}
+					@Override
+					public void run() {
+						inv.setItem(slot, createItem(Material.getMaterial(fileUtils.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), fileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(fileUtils.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion())));
+					}
+				}, i);
 			}
 		}
 		
 		inv.setItem(45, createItem(Material.getMaterial(fileUtils.getConfigString("Settings.PluginsInventory.Info.Type")), 1, 0, fileUtils.getConfigString("Settings.PluginsInventory.Info.DisplayName"), fileUtils.getStringList("Settings.PluginsInventory.Info.Lore")));
-		
-		if(plugins.size() > 45) {
+
+		if(currentPage != 0)
 			inv.setItem(52, createItem(Material.getMaterial(fileUtils.getConfigString("Settings.PluginsInventory.Back.Type")), 1, 0, fileUtils.getConfigString("Settings.PluginsInventory.Back.DisplayName"), fileUtils.getStringList("Settings.PluginsInventory.Back.Lore")));
+		
+		if(plugins.size() > (45 * (currentPage + 1)))
 			inv.setItem(53, createItem(Material.getMaterial(fileUtils.getConfigString("Settings.PluginsInventory.Next.Type")), 1, 0, fileUtils.getConfigString("Settings.PluginsInventory.Next.DisplayName"), fileUtils.getStringList("Settings.PluginsInventory.Next.Lore")));
-		}
 		
 		p.openInventory(inv);
 	}
@@ -156,10 +140,12 @@ public class Utils {
 
 						ArrayList<Event> toRemoveFromListeners = new ArrayList<>();
 						
-						for (Event event : listeners.keySet())
-							for (RegisteredListener listener : listeners.get(event))
+						for (Event event : listeners.keySet()) {
+							for (RegisteredListener listener : listeners.get(event)) {
 								if(listener.getPlugin() == plugin)
 									toRemoveFromListeners.add(event);
+							}
+						}
 						
 						toRemoveFromListeners.forEach(event -> listeners.remove(event));
 						
