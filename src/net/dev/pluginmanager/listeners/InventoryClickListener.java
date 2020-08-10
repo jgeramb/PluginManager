@@ -22,6 +22,8 @@ public class InventoryClickListener implements Listener {
 		Utils utils = pluginManager.getUtils();
 		FileUtils fileUtils = pluginManager.getFileUtils();
 		
+		String prefix = utils.getPrefix();
+		
 		if(e.getWhoClicked() instanceof Player) {
 			Player p = (Player) e.getWhoClicked();
 			
@@ -92,13 +94,13 @@ public class InventoryClickListener implements Listener {
 										Bukkit.getPluginManager().enablePlugin(plugin);
 									
 									p.closeInventory();
-									p.sendMessage(utils.getPrefix() + fileUtils.getConfigString("Messages.PluginEnabled").replace("%plugin%", plugin.getDescription().getName()));
+									p.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginEnabled").replace("%plugin%", plugin.getDescription().getName()));
 								} else if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(fileUtils.getConfigString("Settings.SettingsInventory.Disable.DisplayName"))) {
 									if(plugin.isEnabled())
 										Bukkit.getPluginManager().disablePlugin(plugin);
 									
 									p.closeInventory();
-									p.sendMessage(utils.getPrefix() + fileUtils.getConfigString("Messages.PluginDisabled").replace("%plugin%", plugin.getDescription().getName()));
+									p.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginDisabled").replace("%plugin%", plugin.getDescription().getName()));
 								} else if(e.getCurrentItem().getItemMeta().getDisplayName().equalsIgnoreCase(fileUtils.getConfigString("Settings.SettingsInventory.Back.DisplayName"))) {
 									p.closeInventory();
 									

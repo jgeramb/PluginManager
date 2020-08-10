@@ -93,7 +93,8 @@ public class FileUtils {
 		cfg.addDefault("Messages.AllPluginsReloaded", "&eAll plugins have been reloaded and enabled&7!");
 		cfg.addDefault("Messages.PluginCanNotBeLoaded", "&cThe plugin &a%plugin% &ccould not be loaded&7!");
 		cfg.addDefault("Messages.AllPlugins.Header", "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &bAll plugins &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-		cfg.addDefault("Messages.AllPlugins.Plugin", "&8- %state%%name% &7(&e%version%&7)");
+		cfg.addDefault("Messages.AllPlugins.Plugin", "%state%%name% &7(&e%version%&7)");
+		cfg.addDefault("Messages.AllPlugins.Spacer", "&8, ");
 		cfg.addDefault("Messages.AllPlugins.Footer", "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
 		cfg.addDefault("Messages.PluginRestarted", "&eThe plugin &a%plugin% &ehas been restarted&7!");
 		cfg.addDefault("Messages.AllPluginsRestarted", "&eAll plugins have been restarted&7!");
@@ -104,7 +105,9 @@ public class FileUtils {
 		cfg.addDefault("Messages.CommandBelongsToPlugin", "&eThe command &a%command% &ebelongs to the plugin &d%plugin%&7!");
 		cfg.addDefault("Messages.CommandNotFound", "&cThe command &a%command% &cdoes not exist&7!");
 		cfg.addDefault("Messages.PluginAlreadyLoaded", "&cThe plugin &a%plugin% &cis already loaded&7!");
-		cfg.addDefault("Messages.PluginInfo", Arrays.asList("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &b%name% &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", "&7Author(s)&8: &a%authors%", "&7Version&8: &a%version%", "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &b%name% &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
+		cfg.addDefault("Messages.State.Enabled", "&aenabled");
+		cfg.addDefault("Messages.State.Disabled", "&cdisabled");
+		cfg.addDefault("Messages.PluginInfo", Arrays.asList("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &b%name% &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", "&7Author(s)&8: &a%authors%", "&7Version&8: &a%version%", "&7State&8: &a%state%", "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &b%name% &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
 		cfg.options().copyDefaults(true);
 		saveFile();
 	}

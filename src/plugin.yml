@@ -1,5 +1,5 @@
 name: PluginManager
-version: 1.4
+version: 1.5
 author: Justix
 main: net.dev.pluginmanager.PluginManager
 api-version: 1.13
