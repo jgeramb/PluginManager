@@ -69,13 +69,23 @@ public class FileUtils {
 		cfg.addDefault("Settings.SettingsInventory.Disable.Lore", getListFromStrings("&7Click here to disable the plugin"));
 		cfg.addDefault("Settings.SettingsInventory.Disable.Type", isNonLegacy ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
 		cfg.addDefault("Settings.SettingsInventory.Disable.MetaData", 14);
+		cfg.addDefault("Settings.SettingsInventory.Restart.DisplayName", "&eRestart");
+		cfg.addDefault("Settings.SettingsInventory.Restart.Lore", getListFromStrings("&7Click here to restart the plugin"));
+		cfg.addDefault("Settings.SettingsInventory.Restart.Type", isNonLegacy ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
+		cfg.addDefault("Settings.SettingsInventory.Restart.MetaData", 4);
+		cfg.addDefault("Settings.SettingsInventory.Reload.DisplayName", "&6Reload");
+		cfg.addDefault("Settings.SettingsInventory.Reload.Lore", getListFromStrings("&7Click here to reload the plugin"));
+		cfg.addDefault("Settings.SettingsInventory.Reload.Type", isNonLegacy ? "LEGACY_STAINED_CLAY" : "STAINED_CLAY");
+		cfg.addDefault("Settings.SettingsInventory.Reload.MetaData", 1);
 		cfg.addDefault("Settings.SettingsInventory.Info.DisplayName", "&6&l%plugin%");
-		cfg.addDefault("Settings.SettingsInventory.Info.Lore", getListFromStrings("&7Version&8: &a%version%"));
+		cfg.addDefault("Settings.SettingsInventory.Info.Lore", getListFromStrings("&7Version&8: &a%version%", "&7Author(s)&8: &a%authors%", "&7State&8: &a%state%"));
 		cfg.addDefault("Settings.SettingsInventory.Info.Type", isNonLegacy ? "LEGACY_NETHER_STAR" : "NETHER_STAR");
 		cfg.addDefault("Settings.SettingsInventory.Back.DisplayName", "&8Go back");
 		cfg.addDefault("Settings.SettingsInventory.Back.Lore", getListFromStrings("&7Click here to go back to the overview"));
 		cfg.addDefault("Settings.SettingsInventory.Back.Type", isNonLegacy ? "LEGACY_ARROW" : "ARROW");
 		
+		cfg.addDefault("Messages.State.Enabled", "&aenabled");
+		cfg.addDefault("Messages.State.Disabled", "&cdisabled");
 		cfg.addDefault("Messages.Prefix", "&8┃ &aPM &8» ");
 		cfg.addDefault("Messages.NoPerm", "Unknown command. Type \"/help\" for help.");
 		cfg.addDefault("Messages.NotPlayer", "&cOnly players can perform this command");
@@ -92,7 +102,7 @@ public class FileUtils {
 		cfg.addDefault("Messages.PluginReloaded", "&eThe plugin &a%plugin% &ehas been reloaded and enabled&7!");
 		cfg.addDefault("Messages.AllPluginsReloaded", "&eAll plugins have been reloaded and enabled&7!");
 		cfg.addDefault("Messages.PluginCanNotBeLoaded", "&cThe plugin &a%plugin% &ccould not be loaded&7!");
-		cfg.addDefault("Messages.AllPlugins.Header", "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &bAll plugins &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+		cfg.addDefault("Messages.AllPlugins.Header", "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &bAll plugins &7&a%count%&7) &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
 		cfg.addDefault("Messages.AllPlugins.Plugin", "%state%%name% &7(&e%version%&7)");
 		cfg.addDefault("Messages.AllPlugins.Spacer", "&8, ");
 		cfg.addDefault("Messages.AllPlugins.Footer", "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
@@ -105,8 +115,6 @@ public class FileUtils {
 		cfg.addDefault("Messages.CommandBelongsToPlugin", "&eThe command &a%command% &ebelongs to the plugin &d%plugin%&7!");
 		cfg.addDefault("Messages.CommandNotFound", "&cThe command &a%command% &cdoes not exist&7!");
 		cfg.addDefault("Messages.PluginAlreadyLoaded", "&cThe plugin &a%plugin% &cis already loaded&7!");
-		cfg.addDefault("Messages.State.Enabled", "&aenabled");
-		cfg.addDefault("Messages.State.Disabled", "&cdisabled");
 		cfg.addDefault("Messages.PluginInfo", Arrays.asList("&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &b%name% &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯", "&7Author(s)&8: &a%authors%", "&7Version&8: &a%version%", "&7State&8: &a%state%", "&8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ &b%name% &8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯"));
 		cfg.options().copyDefaults(true);
 		saveFile();

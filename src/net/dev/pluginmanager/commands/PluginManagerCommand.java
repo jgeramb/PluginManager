@@ -423,12 +423,12 @@ public class PluginManagerCommand implements CommandExecutor {
 		} else if(args.length == 1) {
 			if(args[0].equalsIgnoreCase("list")) {
 				if(sender.hasPermission("pluginmanager.list")) {
-					sender.sendMessage(prefix + fileUtils.getConfigString("Messages.AllPlugins.Header"));
-					
 					ArrayList<String> plugins = new ArrayList<>();
 					
 					for (Plugin plugin : Bukkit.getPluginManager().getPlugins())
 						plugins.add(plugin.getName());
+					
+					sender.sendMessage(prefix + fileUtils.getConfigString("Messages.AllPlugins.Header").replace("%count%", String.valueOf(plugins.size())));
 					
 					Collections.sort(plugins, Collator.getInstance());
 					
