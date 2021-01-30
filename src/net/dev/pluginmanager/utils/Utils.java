@@ -1,20 +1,14 @@
 package net.dev.pluginmanager.utils;
 
+import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URLClassLoader;
 import java.text.Collator;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.UUID;
+import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.Command;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.command.SimpleCommandMap;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.Inventory;
@@ -54,12 +48,12 @@ public class Utils {
 		return item;
 	}
 
-	public void openInventory(Player p) {
+	public void openInventory(Player player) {
 		PluginManager pluginManager = PluginManager.getInstance();
 		FileUtils fileUtils = pluginManager.getFileUtils();
 		
-		if(!(currentPages.containsKey(p.getUniqueId())))
-			currentPages.put(p.getUniqueId(), 0);
+		if(!(currentPages.containsKey(player.getUniqueId())))
+			currentPages.put(player.getUniqueId(), 0);
 		
 		Inventory inv = Bukkit.createInventory(null, 54, fileUtils.getConfigString("Settings.PluginsInventory.Title"));
 		ArrayList<Plugin> plugins = new ArrayList<>();
@@ -75,7 +69,7 @@ public class Utils {
 		for (String name : pluginNames)
 			plugins.add(Bukkit.getPluginManager().getPlugin(name));
 			
-		int currentPage = currentPages.get(p.getUniqueId()), i = 0, count = 0;
+		int currentPage = currentPages.get(player.getUniqueId()), i = 0, count = 0;
 
 		for (Plugin plugin : plugins) {
 			count++;
@@ -105,22 +99,22 @@ public class Utils {
 		if(plugins.size() > (45 * (currentPage + 1)))
 			inv.setItem(53, createItem(Material.getMaterial(fileUtils.getConfigString("Settings.PluginsInventory.Next.Type")), 1, 0, fileUtils.getConfigString("Settings.PluginsInventory.Next.DisplayName"), fileUtils.getStringList("Settings.PluginsInventory.Next.Lore")));
 		
-		p.openInventory(inv);
+		player.openInventory(inv);
 	}
 	
 	public void unloadPlugin(Plugin plugin) {
-		org.bukkit.plugin.PluginManager pm = Bukkit.getPluginManager();
+		org.bukkit.plugin.PluginManager pluginManager = Bukkit.getPluginManager();
 		
-		if(pm != null) {
+		if(pluginManager != null) {
 			try {
 				//Unregister plugin
-				Field pluginsField = pm.getClass().getDeclaredField("plugins");
+				Field pluginsField = pluginManager.getClass().getDeclaredField("plugins");
 				pluginsField.setAccessible(true);
-				List<Plugin> plugins = (List<Plugin>) pluginsField.get(pm);
+				List<Plugin> plugins = (List<Plugin>) pluginsField.get(pluginManager);
 				
-				Field lookupNamesField = pm.getClass().getDeclaredField("lookupNames");
+				Field lookupNamesField = pluginManager.getClass().getDeclaredField("lookupNames");
 				lookupNamesField.setAccessible(true);
-				Map<String, Plugin> lookupNames = (Map<String, Plugin>) lookupNamesField.get(pm);
+				Map<String, Plugin> lookupNames = (Map<String, Plugin>) lookupNamesField.get(pluginManager);
 				
 				if(plugins.contains(plugin))
 					plugins.remove(plugin);
@@ -128,15 +122,15 @@ public class Utils {
 				if(lookupNames.containsKey(plugin.getName()))
 					lookupNames.remove(plugin.getName());
 				
-				pluginsField.set(pm, plugins);
-				lookupNamesField.set(pm, lookupNames);
+				pluginsField.set(pluginManager, plugins);
+				lookupNamesField.set(pluginManager, lookupNames);
 				
 				try {
 					//Remove listeners
 					try {
-						Field listenersField = pm.getClass().getDeclaredField("listeners");
+						Field listenersField = pluginManager.getClass().getDeclaredField("listeners");
 						listenersField.setAccessible(true);
-						Map<Event, SortedSet<RegisteredListener>> listeners = (Map<Event, SortedSet<RegisteredListener>>) listenersField.get(pm);
+						Map<Event, SortedSet<RegisteredListener>> listeners = (Map<Event, SortedSet<RegisteredListener>>) listenersField.get(pluginManager);
 
 						ArrayList<Event> toRemoveFromListeners = new ArrayList<>();
 						
@@ -149,14 +143,14 @@ public class Utils {
 						
 						toRemoveFromListeners.forEach(event -> listeners.remove(event));
 						
-						listenersField.set(pm, listeners);
-					} catch (Exception e) {
+						listenersField.set(pluginManager, listeners);
+					} catch (Exception ex) {
 					}
 
 					//Unregister commands
-					Field commandMapField = pm.getClass().getDeclaredField("commandMap");
+					Field commandMapField = pluginManager.getClass().getDeclaredField("commandMap");
 					commandMapField.setAccessible(true);
-					SimpleCommandMap commandMap = (SimpleCommandMap) commandMapField.get(pm);
+					SimpleCommandMap commandMap = (SimpleCommandMap) commandMapField.get(pluginManager);
 					
 					Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
 					knownCommandsField.setAccessible(true);
@@ -183,8 +177,8 @@ public class Utils {
 						
 						knownCommandsField.set(commandMap, knownCommands);
 					}
-				} catch (Exception e) {
-					e.printStackTrace();
+				} catch (Exception ex) {
+					ex.printStackTrace();
 				}
 					
 				//Disable ClassLoader
@@ -203,8 +197,8 @@ public class Utils {
 		        }
 				
 				System.gc();
-			} catch (Exception e) {
-				e.printStackTrace();
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
 		}
 	}
@@ -216,9 +210,20 @@ public class Utils {
 			commandMapField.setAccessible(true);
 			
 			return (SimpleCommandMap) commandMapField.get(pm);
-		} catch (Exception e) {
+		} catch (Exception ex) {
 			return new SimpleCommandMap(Bukkit.getServer());
 		}
+	}
+	
+	public boolean deleteFile(File file) {
+		if(file.isDirectory()) {
+	        for (File subFile : file.listFiles()) {
+	            if (!(deleteFile(subFile)))
+	                return false;
+	        }
+		}
+		
+		return file.delete();
 	}
 	
 	public String getVersion() {

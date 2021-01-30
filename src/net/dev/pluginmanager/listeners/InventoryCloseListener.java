@@ -20,7 +20,7 @@ public class InventoryCloseListener implements Listener {
 		FileUtils fileUtils = pluginManager.getFileUtils();
 		
 		if(e.getPlayer() instanceof Player) {
-			Player p = (Player) e.getPlayer();
+			Player player = (Player) e.getPlayer();
 			
 			for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
 				if(e.getView().getTitle().equalsIgnoreCase(fileUtils.getConfigString("Settings.PluginsInventory.Title").replace("%plugin%", plugin.getDescription().getName())) || e.getView().getTitle().equalsIgnoreCase(fileUtils.getConfigString("Settings.SettingsInventory.Title").replace("%plugin%", plugin.getDescription().getName()))) {
@@ -28,13 +28,13 @@ public class InventoryCloseListener implements Listener {
 						
 						@Override
 						public void run() {
-							if(p.isOnline()) {
-								if((p.getOpenInventory() == null) || ((p.getOpenInventory() == null) && !(p.getOpenInventory().getTitle().equalsIgnoreCase(fileUtils.getConfigString("Settings.PluginsInventory.Title").replace("%plugin%", plugin.getDescription().getName())) || p.getOpenInventory().getTitle().equalsIgnoreCase(fileUtils.getConfigString("Settings.SettingsInventory.Title").replace("%plugin%", plugin.getDescription().getName()))))) {
-									if(utils.getCurrentPages().containsKey(p.getUniqueId()))
-										utils.getCurrentPages().remove(p.getUniqueId());
+							if(player.isOnline()) {
+								if((player.getOpenInventory() == null) || ((player.getOpenInventory() == null) && !(player.getOpenInventory().getTitle().equalsIgnoreCase(fileUtils.getConfigString("Settings.PluginsInventory.Title").replace("%plugin%", plugin.getDescription().getName())) || player.getOpenInventory().getTitle().equalsIgnoreCase(fileUtils.getConfigString("Settings.SettingsInventory.Title").replace("%plugin%", plugin.getDescription().getName()))))) {
+									if(utils.getCurrentPages().containsKey(player.getUniqueId()))
+										utils.getCurrentPages().remove(player.getUniqueId());
 								}
-							} else if(utils.getCurrentPages().containsKey(p.getUniqueId()))
-								utils.getCurrentPages().remove(p.getUniqueId());
+							} else if(utils.getCurrentPages().containsKey(player.getUniqueId()))
+								utils.getCurrentPages().remove(player.getUniqueId());
 						}
 					}, 20);
 				}

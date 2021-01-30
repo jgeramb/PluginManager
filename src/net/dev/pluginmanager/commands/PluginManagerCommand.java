@@ -1,22 +1,17 @@
 package net.dev.pluginmanager.commands;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.InvalidDescriptionException;
-import org.bukkit.plugin.InvalidPluginException;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginDescriptionFile;
-import org.bukkit.plugin.UnknownDependencyException;
+import org.bukkit.plugin.*;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import net.dev.pluginmanager.PluginManager;
 import net.dev.pluginmanager.utils.FileUtils;
@@ -30,15 +25,16 @@ public class PluginManagerCommand implements CommandExecutor {
 		Utils utils = pluginManager.getUtils();
 		FileUtils fileUtils = pluginManager.getFileUtils();
 		
+		boolean showHelp = false;
 		String prefix = utils.getPrefix();
 		
 		if(args.length == 0) {
 			if(sender instanceof Player) {
-				Player p = (Player) sender;
+				Player player = (Player) sender;
 				
 				if(sender.hasPermission("pluginmanager.gui")) {
-					utils.getCurrentPages().put(p.getUniqueId(), 0);
-					utils.openInventory(p);
+					utils.getCurrentPages().put(player.getUniqueId(), 0);
+					utils.openInventory(player);
 				} else
 					sender.sendMessage(utils.getNoPerm());
 			} else
@@ -172,8 +168,8 @@ public class PluginManagerCommand implements CommandExecutor {
 												Bukkit.getPluginManager().enablePlugin(plugin);
 											} else
 												sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginCanNotBeLoaded").replace("%plugin%", file.getName()));
-										} catch (UnknownDependencyException | InvalidPluginException | InvalidDescriptionException e) {
-											e.printStackTrace();
+										} catch (UnknownDependencyException | InvalidPluginException | InvalidDescriptionException ex) {
+											ex.printStackTrace();
 											
 											sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginCanNotBeLoaded").replace("%plugin%", plugin.getName()));
 										}
@@ -209,8 +205,8 @@ public class PluginManagerCommand implements CommandExecutor {
 											sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginLoaded").replace("%plugin%", args[1]));
 										} else
 											sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginNotFound").replace("%plugin%", args[1]));
-									} catch (UnknownDependencyException | InvalidPluginException | InvalidDescriptionException e) {
-										e.printStackTrace();
+									} catch (UnknownDependencyException | InvalidPluginException | InvalidDescriptionException ex) {
+										ex.printStackTrace();
 										
 										sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginCanNotBeLoaded").replace("%plugin%", args[1]));
 									}
@@ -298,8 +294,8 @@ public class PluginManagerCommand implements CommandExecutor {
 												Bukkit.getPluginManager().enablePlugin(plugin);
 											} else
 												sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginCanNotBeLoaded").replace("%plugin%", file.getName()));
-										} catch (UnknownDependencyException | InvalidPluginException | InvalidDescriptionException e) {
-											e.printStackTrace();
+										} catch (UnknownDependencyException | InvalidPluginException | InvalidDescriptionException ex) {
+											ex.printStackTrace();
 											
 											sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginCanNotBeLoaded").replace("%plugin%", plugin.getName()));
 										}
@@ -342,8 +338,8 @@ public class PluginManagerCommand implements CommandExecutor {
 											sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginReloaded").replace("%plugin%", args[1]));
 										} else
 											sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginCanNotBeLoaded").replace("%plugin%", args[1]));
-									} catch (UnknownDependencyException | InvalidPluginException | InvalidDescriptionException e) {
-										e.printStackTrace();
+									} catch (UnknownDependencyException | InvalidPluginException | InvalidDescriptionException ex) {
+										ex.printStackTrace();
 										
 										sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginCanNotBeLoaded").replace("%plugin%", plugin.getName()));
 									}
@@ -373,6 +369,51 @@ public class PluginManagerCommand implements CommandExecutor {
 						
 						for (String line : fileUtils.getConfig().getStringList("Messages.PluginInfo"))
 							sender.sendMessage(prefix + ChatColor.translateAlternateColorCodes('&', line.replace("%name%", description.getName()).replace("%version%", description.getVersion()).replace("%state%", plugin.isEnabled() ? fileUtils.getConfigString("Messages.State.Enabled") : fileUtils.getConfigString("Messages.State.Disabled")).replace("%authors%", description.getAuthors().toString().replace("[", "").replace("]", ""))));
+					} else
+						sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginNotFound").replace("%plugin%", args[1]));
+				} else
+					sender.sendMessage(utils.getNoPerm());
+			} else if(args[0].equalsIgnoreCase("deldir")) {
+				if(sender.hasPermission("pluginmanager.deletedirectory") || sender.hasPermission("pluginmanager.deletedirectory." + args[1].toLowerCase())) {
+					Plugin plugin = Bukkit.getPluginManager().getPlugin(args[1]);
+					
+					if((plugin != null) && (plugin instanceof JavaPlugin)) {
+						try {
+							File pluginDirectory = new File("plugins/" + plugin.getName() + "/");
+							
+							if(pluginDirectory.exists())
+								utils.deleteFile(pluginDirectory);
+							
+							sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginDirectoryDeleted").replace("%plugin%", plugin.getName()));
+						} catch (SecurityException ex) {
+							ex.printStackTrace();
+							
+							sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginDirectoryCanNotBeDeleted").replace("%plugin%", plugin.getName()));
+						}
+					} else
+						sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginNotFound").replace("%plugin%", args[1]));
+				} else
+					sender.sendMessage(utils.getNoPerm());
+			} else if(args[0].equalsIgnoreCase("del")) {
+				if(sender.hasPermission("pluginmanager.delete") || sender.hasPermission("pluginmanager.delete." + args[1].toLowerCase())) {
+					Plugin plugin = Bukkit.getPluginManager().getPlugin(args[1]);
+					
+					if((plugin != null) && (plugin instanceof JavaPlugin)) {
+						try {
+							if(System.getProperty("os.name").contains("Windows"))
+								utils.unloadPlugin(plugin);
+							
+							Field fileField = JavaPlugin.class.getDeclaredField("file");
+							fileField.setAccessible(true);
+							
+							((File) fileField.get(plugin)).delete();
+							
+							sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginDeleted").replace("%plugin%", plugin.getName()));
+						} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException ex) {
+							ex.printStackTrace();
+							
+							sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginCanNotBeDeleted").replace("%plugin%", plugin.getName()));
+						}
 					} else
 						sender.sendMessage(prefix + fileUtils.getConfigString("Messages.PluginNotFound").replace("%plugin%", args[1]));
 				} else
@@ -419,7 +460,7 @@ public class PluginManagerCommand implements CommandExecutor {
 				} else
 					sender.sendMessage(utils.getNoPerm());
 			} else
-				sendHelp(sender, args);
+				showHelp = true;
 		} else if(args.length == 1) {
 			if(args[0].equalsIgnoreCase("list")) {
 				if(sender.hasPermission("pluginmanager.list")) {
@@ -445,35 +486,41 @@ public class PluginManagerCommand implements CommandExecutor {
 				} else
 					sender.sendMessage(utils.getNoPerm());
 			} else
-				sendHelp(sender, args);
+				showHelp = true;
 		} else
-			sendHelp(sender, args);
+			showHelp = true;
 		
-		return true;
-	}
-
-	private void sendHelp(CommandSender sender, String[] args) {
-		PluginManager pluginManager = PluginManager.getInstance();
-		Utils utils = pluginManager.getUtils();
-		
-		String prefix = utils.getPrefix();
-		
-		if((args.length >= 1) && args[0].equalsIgnoreCase("about")) {
+		if(showHelp) {
 			PluginDescriptionFile description = pluginManager.getDescription();
 			
-			sender.sendMessage(prefix + "§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ §a" + description.getName() + " §8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-			sender.sendMessage(prefix + "§7Plugin made by §b" + description.getAuthors().toString().replace("[", "").replace("]", ""));
-			sender.sendMessage(prefix + "§7Version§8: §d" + description.getVersion());
-			sender.sendMessage(prefix + "§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ §a" + description.getName() + " §8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
-		} else {
-			if(sender.hasPermission("pluginmanager.use")) {
-				sender.sendMessage(prefix + "§7/pman («enable|disable|restart|load|unload|reload» «plugin|all»)");
-				sender.sendMessage(prefix + "§7/pman («cmdlookup» «command»)");
-				sender.sendMessage(prefix + "§7/pman («info|commands» «plugin»)");
-				sender.sendMessage(prefix + "§7/pman («list»)");
-			} else
-				sender.sendMessage(utils.getNoPerm());
+			if((args.length >= 1) && args[0].equalsIgnoreCase("about")) {
+				sender.sendMessage(prefix + "§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ §a" + description.getName() + " §8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+				sender.sendMessage(prefix + "§7Plugin made by §b" + description.getAuthors().toString().replace("[", "").replace("]", ""));
+				sender.sendMessage(prefix + "§7Version§8: §d" + description.getVersion());
+				sender.sendMessage(prefix + "§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ §a" + description.getName() + " §8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+			} else {
+				if(sender.hasPermission("pluginmanager.use")) {
+					sender.sendMessage(prefix + "§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ §a" + description.getName() + " §8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+					sender.sendMessage(prefix + "§a/pman §8| §7Opens the gui");
+					sender.sendMessage(prefix + "§a/pman enable «plugin | all» §8| §7Enables all plugins/the given plugin");
+					sender.sendMessage(prefix + "§a/pman disable «plugin | all» §8| §7Disables all plugins/the given plugin");
+					sender.sendMessage(prefix + "§a/pman restart «plugin | all» §8| §7Restarts all plugins/the given plugin");
+					sender.sendMessage(prefix + "§a/pman load «plugin | all» §8| §7Loads all plugins/the given plugin");
+					sender.sendMessage(prefix + "§a/pman unload «plugin | all» §8| §7Unloads all plugins/the given plugin");
+					sender.sendMessage(prefix + "§a/pman reload «plugin | all» §8| §7Reloads all plugins/the given plugin");
+					sender.sendMessage(prefix + "§a/pman cmdlookup «command» §8| §7Shows the plugin which the given command belongs to");
+					sender.sendMessage(prefix + "§a/pman info «plugin» §8| §7Shows information about the given plugin");
+					sender.sendMessage(prefix + "§a/pman deldir «plugin» §8| §7Deletes the direcoty of the given plugin");
+					sender.sendMessage(prefix + "§a/pman del «plugin» §8| §7Deletes the file of the given plugin");
+					sender.sendMessage(prefix + "§a/pman commands «plugin» §8| §7Shows the commands of the given plugin");
+					sender.sendMessage(prefix + "§a/pman list §8| §7Shows all plugins");
+					sender.sendMessage(prefix + "§8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ §a" + description.getName() + " §8⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯");
+				} else
+					sender.sendMessage(utils.getNoPerm());
+			}
 		}
+		
+		return true;
 	}
 
 }

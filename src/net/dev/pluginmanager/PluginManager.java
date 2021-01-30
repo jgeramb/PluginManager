@@ -1,13 +1,9 @@
 package net.dev.pluginmanager;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
+import org.bukkit.command.*;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.StringUtil;
@@ -71,6 +67,12 @@ public class PluginManager extends JavaPlugin {
 							if(sender.hasPermission("pluginmanager.info"))
 								tabCompletions.add("info");
 							
+							if(sender.hasPermission("pluginmanager.deletedirectory"))
+								tabCompletions.add("deldir");
+							
+							if(sender.hasPermission("pluginmanager.delete"))
+								tabCompletions.add("del");
+							
 							if(sender.hasPermission("pluginmanager.commands"))
 								tabCompletions.add("commands");
 							
@@ -81,18 +83,31 @@ public class PluginManager extends JavaPlugin {
 								if(sender.hasPermission("pluginmanager." + args[0].toLowerCase() + ".all"))
 									tabCompletions.add("all");
 								
-								for (Plugin plugin : Bukkit.getPluginManager().getPlugins())
+								for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
 									if(!(plugin.getName().equalsIgnoreCase(getDescription().getName())))
 										if(sender.hasPermission("pluginmanager." + args[0].toLowerCase()) || sender.hasPermission("pluginmanager." + args[0].toLowerCase() + "." + plugin.getName().toLowerCase()))
 											tabCompletions.add(plugin.getName());
+								}
 							} else if(args[0].equalsIgnoreCase("cmdlookup")) {
-								for (Command command : utils.getCommands().getCommands())
+								for (Command command : utils.getCommands().getCommands()) {
 									if(sender.hasPermission("pluginmanager.cmdlookup") || sender.hasPermission("pluginmanager.cmdlookup." + command.getName().toLowerCase()))
 										tabCompletions.add(command.getName());
+								}
 							} else if(args[0].equalsIgnoreCase("info") || args[0].equalsIgnoreCase("commands")) {
-								for (Plugin plugin : Bukkit.getPluginManager().getPlugins())
+								for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
 									if(sender.hasPermission("pluginmanager." + args[0].toLowerCase()) || sender.hasPermission("pluginmanager." + args[0].toLowerCase() + "." + plugin.getName().toLowerCase()))
 										tabCompletions.add(plugin.getName());
+								}
+							} else if(args[0].equalsIgnoreCase("deldir")) {
+								for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+									if(sender.hasPermission("pluginmanager.deletedirectory") || sender.hasPermission("pluginmanager.deletedirectory." + plugin.getName().toLowerCase()))
+										tabCompletions.add(plugin.getName());
+								}
+							} else if(args[0].equalsIgnoreCase("del")) {
+								for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
+									if(sender.hasPermission("pluginmanager.delete") || sender.hasPermission("pluginmanager.delete." + plugin.getName().toLowerCase()))
+										tabCompletions.add(plugin.getName());
+								}
 							}
 						}
 						
