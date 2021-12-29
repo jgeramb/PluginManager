@@ -1,4 +1,4 @@
-package net.dev.pluginmanager.utils;
+package net.dev.pluginmanager.utilities;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,17 +9,17 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import net.dev.pluginmanager.PluginManager;
 
-public class FileUtils {
+public class SetupFileManager {
 
 	private File directory, file;
 	private YamlConfiguration cfg;
 
 	private PluginManager pluginManager;
-	private Utils utils;
+	private Utilities utilities;
 	
-	public FileUtils() {
+	public SetupFileManager() {
 		pluginManager = PluginManager.getInstance();
-		utils = pluginManager.getUtils();
+		utilities = pluginManager.getUtils();
 		
 		directory = new File("plugins/" + pluginManager.getDescription().getName() + "/");
 		file = new File(directory, "setup.yml");
@@ -36,7 +36,7 @@ public class FileUtils {
 		
 		cfg = YamlConfiguration.loadConfiguration(file);
 		
-		boolean isNonLegacy = Integer.parseInt(utils.getVersion().replace("v", "").split("_")[1]) > 12;
+		boolean isNonLegacy = Integer.parseInt(utilities.getVersion().replace("v", "").split("_")[1]) > 12;
 		
 		cfg.addDefault("Settings.PluginsInventory.Title", "&aPlugins");
 		cfg.addDefault("Settings.PluginsInventory.Plugin.DisplayName", "&b%plugin%");
@@ -128,9 +128,9 @@ public class FileUtils {
 		} catch (IOException e) {
 		}
 		
-		utils.setPrefix(getConfigString("Messages.Prefix"));
-		utils.setNoPerm(getConfigString("Messages.NoPerm"));
-		utils.setNotPlayer(getConfigString("Messages.NotPlayer"));
+		utilities.setPrefix(getConfigString("Messages.Prefix"));
+		utilities.setNoPerm(getConfigString("Messages.NoPerm"));
+		utilities.setNotPlayer(getConfigString("Messages.NotPlayer"));
 	}
 	
 	public String getConfigString(String path) {

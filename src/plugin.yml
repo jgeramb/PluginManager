@@ -1,5 +1,5 @@
 name: PluginManager
-version: 1.7
+version: 1.8
 author: Justix
 main: net.dev.pluginmanager.PluginManager
 api-version: 1.13
@@ -9,3 +9,4 @@ commands:
     aliases:
     - pmanager
     - pman
+    - ezpm

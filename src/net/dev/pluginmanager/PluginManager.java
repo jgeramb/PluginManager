@@ -11,8 +11,8 @@ import org.bukkit.util.StringUtil;
 import net.dev.pluginmanager.commands.PluginManagerCommand;
 import net.dev.pluginmanager.listeners.InventoryClickListener;
 import net.dev.pluginmanager.listeners.InventoryCloseListener;
-import net.dev.pluginmanager.utils.FileUtils;
-import net.dev.pluginmanager.utils.Utils;
+import net.dev.pluginmanager.utilities.SetupFileManager;
+import net.dev.pluginmanager.utilities.Utilities;
 
 public class PluginManager extends JavaPlugin {
 
@@ -22,15 +22,15 @@ public class PluginManager extends JavaPlugin {
 		return instance;
 	}
 	
-	private Utils utils;
-	private FileUtils fileUtils;
+	private Utilities utilities;
+	private SetupFileManager setupFileManager;
 	
 	@Override
 	public void onEnable() {
 		instance = this;
 		
-		utils = new Utils();
-		fileUtils = new FileUtils();
+		utilities = new Utilities();
+		setupFileManager = new SetupFileManager();
 		
 		getCommand("pluginmanager").setTabCompleter(new TabCompleter() {
 			
@@ -89,7 +89,7 @@ public class PluginManager extends JavaPlugin {
 											tabCompletions.add(plugin.getName());
 								}
 							} else if(args[0].equalsIgnoreCase("cmdlookup")) {
-								for (Command command : utils.getCommands().getCommands()) {
+								for (Command command : utilities.getCommands().getCommands()) {
 									if(sender.hasPermission("pluginmanager.cmdlookup") || sender.hasPermission("pluginmanager.cmdlookup." + command.getName().toLowerCase()))
 										tabCompletions.add(command.getName());
 								}
@@ -126,20 +126,20 @@ public class PluginManager extends JavaPlugin {
 		pm.registerEvents(new InventoryClickListener(), this);
 		pm.registerEvents(new InventoryCloseListener(), this);
 		
-		utils.sendConsole("§7The plugin has been §aenabled§7!");
+		utilities.sendConsole("§7The plugin has been §aenabled§7!");
 	}
 
 	@Override
 	public void onDisable() {
-		utils.sendConsole("§7The plugin has been §cdisabled§7!");
+		utilities.sendConsole("§7The plugin has been §cdisabled§7!");
 	}
 	
-	public Utils getUtils() {
-		return utils;
+	public Utilities getUtils() {
+		return utilities;
 	}
 	
-	public FileUtils getFileUtils() {
-		return fileUtils;
+	public SetupFileManager getFileUtils() {
+		return setupFileManager;
 	}
 	
 }

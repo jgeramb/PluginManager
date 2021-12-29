@@ -1,10 +1,10 @@
-package net.dev.pluginmanager.utils;
+package net.dev.pluginmanager.utilities;
 
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URLClassLoader;
-import java.text.Collator;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,7 +19,7 @@ import org.bukkit.plugin.RegisteredListener;
 
 import net.dev.pluginmanager.PluginManager;
 
-public class Utils {
+public class Utilities {
 
 	private String prefix, noPerm, notPlayer;
 	
@@ -50,25 +50,13 @@ public class Utils {
 
 	public void openInventory(Player player) {
 		PluginManager pluginManager = PluginManager.getInstance();
-		FileUtils fileUtils = pluginManager.getFileUtils();
+		SetupFileManager setupFileManager = pluginManager.getFileUtils();
 		
 		if(!(currentPages.containsKey(player.getUniqueId())))
 			currentPages.put(player.getUniqueId(), 0);
 		
-		Inventory inv = Bukkit.createInventory(null, 54, fileUtils.getConfigString("Settings.PluginsInventory.Title"));
-		ArrayList<Plugin> plugins = new ArrayList<>();
-		ArrayList<String> pluginNames = new ArrayList<>();
-		
-		for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
-			if(!(plugin.getName().equalsIgnoreCase(pluginManager.getDescription().getName())))
-				pluginNames.add(plugin.getName());
-		}
-		
-		pluginNames.sort(Collator.getInstance());
-		
-		for (String name : pluginNames)
-			plugins.add(Bukkit.getPluginManager().getPlugin(name));
-			
+		Inventory inv = Bukkit.createInventory(null, 54, setupFileManager.getConfigString("Settings.PluginsInventory.Title"));
+		List<Plugin> plugins = Arrays.asList(Bukkit.getPluginManager().getPlugins()).stream().filter(plugin -> !(plugin.getName().equalsIgnoreCase(pluginManager.getDescription().getName()))).sorted(Comparator.comparing(plugin -> plugin.getName())).collect(Collectors.toList());
 		int currentPage = currentPages.get(player.getUniqueId()), i = 0, count = 0;
 
 		for (Plugin plugin : plugins) {
@@ -81,23 +69,17 @@ public class Utils {
 				i++;
 				int slot = i - 1;
 				
-				Bukkit.getScheduler().runTaskLater(pluginManager, new Runnable() {
-					
-					@Override
-					public void run() {
-						inv.setItem(slot, createItem(Material.getMaterial(fileUtils.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : fileUtils.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), fileUtils.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(fileUtils.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion())));
-					}
-				}, i);
+				Bukkit.getScheduler().runTaskLater(pluginManager, () -> inv.setItem(slot, createItem(Material.getMaterial(setupFileManager.getConfigString(plugin.isEnabled() ? "Settings.PluginsInventory.Plugin.Type.Enabled" : "Settings.PluginsInventory.Plugin.Type.Disabled")), 1, plugin.isEnabled() ? setupFileManager.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Enabled") : setupFileManager.getConfig().getInt("Settings.PluginsInventory.Plugin.MetaData.Disabled"), setupFileManager.getConfigString("Settings.PluginsInventory.Plugin.DisplayName").replace("%plugin%", plugin.getDescription().getName()), replaceInList(setupFileManager.getStringList("Settings.PluginsInventory.Plugin.Lore"), "%plugin%", plugin.getDescription().getVersion()))), i);
 			}
 		}
 		
-		inv.setItem(45, createItem(Material.getMaterial(fileUtils.getConfigString("Settings.PluginsInventory.Info.Type")), 1, 0, fileUtils.getConfigString("Settings.PluginsInventory.Info.DisplayName"), fileUtils.getStringList("Settings.PluginsInventory.Info.Lore")));
+		inv.setItem(45, createItem(Material.getMaterial(setupFileManager.getConfigString("Settings.PluginsInventory.Info.Type")), 1, 0, setupFileManager.getConfigString("Settings.PluginsInventory.Info.DisplayName"), setupFileManager.getStringList("Settings.PluginsInventory.Info.Lore")));
 
 		if(currentPage != 0)
-			inv.setItem(52, createItem(Material.getMaterial(fileUtils.getConfigString("Settings.PluginsInventory.Back.Type")), 1, 0, fileUtils.getConfigString("Settings.PluginsInventory.Back.DisplayName"), fileUtils.getStringList("Settings.PluginsInventory.Back.Lore")));
+			inv.setItem(52, createItem(Material.getMaterial(setupFileManager.getConfigString("Settings.PluginsInventory.Back.Type")), 1, 0, setupFileManager.getConfigString("Settings.PluginsInventory.Back.DisplayName"), setupFileManager.getStringList("Settings.PluginsInventory.Back.Lore")));
 		
 		if(plugins.size() > (45 * (currentPage + 1)))
-			inv.setItem(53, createItem(Material.getMaterial(fileUtils.getConfigString("Settings.PluginsInventory.Next.Type")), 1, 0, fileUtils.getConfigString("Settings.PluginsInventory.Next.DisplayName"), fileUtils.getStringList("Settings.PluginsInventory.Next.Lore")));
+			inv.setItem(53, createItem(Material.getMaterial(setupFileManager.getConfigString("Settings.PluginsInventory.Next.Type")), 1, 0, setupFileManager.getConfigString("Settings.PluginsInventory.Next.DisplayName"), setupFileManager.getStringList("Settings.PluginsInventory.Next.Lore")));
 		
 		player.openInventory(inv);
 	}
@@ -157,23 +139,10 @@ public class Utils {
 					Map<String, Command> knownCommands = (Map<String, Command>) knownCommandsField.get(commandMap);
 						
 					if(commandMap != null) {
-						ArrayList<String> toRemoveFromKnownCommands = new ArrayList<>();
-						
-						for (String commandName : knownCommands.keySet()) {
-							Command cmd = knownCommands.get(commandName);
-								
-							if(cmd instanceof PluginCommand) {
-								PluginCommand command = (PluginCommand) cmd;
-								
-								if(command.getPlugin() == plugin) {
-									command.unregister(commandMap);
-									
-									toRemoveFromKnownCommands.add(commandName);
-								}
-							}
-						}
-					
-						toRemoveFromKnownCommands.forEach(commandName -> knownCommands.remove(commandName));
+						new HashSet<>(knownCommands.entrySet()).stream().filter(knownCommand -> (knownCommand.getValue() instanceof PluginCommand)).filter(knownCommand -> ((PluginCommand) knownCommand.getValue()).getPlugin().equals(plugin)).forEach(knownCommand -> {
+							knownCommand.getValue().unregister(commandMap);
+							knownCommands.remove(knownCommand.getKey());
+						});
 						
 						knownCommandsField.set(commandMap, knownCommands);
 					}
